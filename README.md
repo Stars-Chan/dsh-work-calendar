@@ -9,7 +9,7 @@
 dsh plugin --profile desktop add dsh-work-calendar
 
 # GitHub（始终最新）
-dsh plugin --profile desktop add github:<you>/dsh-work-calendar
+dsh plugin --profile desktop add github:Stars-Chan/dsh-work-calendar
 ```
 
 也可以在 Harness 的 **Plugins 面板 → 添加** 里直接填包名。装完刷新页面，左侧边栏会出现日历图标。

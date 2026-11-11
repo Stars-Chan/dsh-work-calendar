@@ -51,5 +51,13 @@
         "@deepseek-ai/dsh-client-ui-workspace"
       ]
     }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Stars-Chan/dsh-work-calendar.git"
+  },
+  "homepage": "https://github.com/Stars-Chan/dsh-work-calendar#readme",
+  "bugs": {
+    "url": "https://github.com/Stars-Chan/dsh-work-calendar/issues"
   }
 }
