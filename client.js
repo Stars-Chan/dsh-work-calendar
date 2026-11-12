@@ -46,6 +46,8 @@ window.__ModuleLoader__.load({
       schedules: '日程',
       sessionsLabel: '会话',
       newSchedule: '新建日程',
+      chatCreate: '让 Agent 帮我建',
+      chatCreatePrompt: '帮我用 calendar_schedule 工具创建一个日程，当前选中的日期是 {date}。动手之前，先把这几件事和我确认清楚：具体时间和时区、是否重复（一次性 / 每天 / 每周）、由哪个会话执行。确认完再创建，并把创建结果告诉我。',
       noSchedules: '这一天没有日程',
       scheduleCount: '{count} 个日程',
       repeatOnce: '一次性',
@@ -122,6 +124,8 @@ window.__ModuleLoader__.load({
       schedules: 'Schedules',
       sessionsLabel: 'Sessions',
       newSchedule: 'New schedule',
+      chatCreate: 'Ask the agent',
+      chatCreatePrompt: 'Create a work-calendar schedule with the calendar_schedule tool; the day currently selected is {date}. Before creating, confirm with me: the exact local time, whether it repeats (once, daily, weekly), and which Session should run it. Then create it and report the result.',
       noSchedules: 'No schedule on this day',
       scheduleCount: '{count} schedules',
       repeatOnce: 'Once',
@@ -261,6 +265,7 @@ body[data-ds-dark-theme] .wc-page {
 .wc-section[data-kind='schedules'] .wc-sectiontitle { color: var(--wc-accent); }
 .wc-sectionempty { margin: 0; color: var(--wc-ink-soft); font-size: 11px; }
 .wc-sectionerror { margin: 0; color: var(--dsw-alias-state-error-primary); font-size: 11px; }
+.wc-sectionactions { display: flex; align-items: center; gap: 2px; }
 .wc-sectionmore { align-self: flex-start; }
 .wc-sched { display: flex; flex-direction: column; gap: 3px; padding: 10px 12px; border: 1px solid var(--wc-accent-line); border-radius: var(--dsw-radius-lg); background-color: var(--wc-accent-soft); transition: border-color 120ms ease, background-color 120ms ease; }
 .wc-sched:hover { border-color: var(--wc-accent); }
@@ -539,7 +544,7 @@ body[data-ds-dark-theme] .wc-page {
      * @param props - the slot's translate function and the Session opener.
      * @returns the rendered panel.
      */
-    function WorkCalendarPage({ t, openSession, scheduleApi, pickDirectory }) {
+    function WorkCalendarPage({ t, openSession, scheduleApi, pickDirectory, startSession }) {
       const [month, setMonth] = useState(() => startOfMonth(new Date()))
       const [selectedKey, setSelectedKey] = useState(() => dayKeyOf(new Date()))
       const [token, setToken] = useState(0)
@@ -709,6 +714,16 @@ body[data-ds-dark-theme] .wc-page {
           busy: false,
           error: null,
         })
+      }
+
+      /**
+       * Hand the new schedule to an agent conversation instead of the form.
+       * @returns nothing.
+       */
+      const openChatCreate = () => {
+        if (startSession === undefined) return
+        setNotice(null)
+        startSession(t('chatCreatePrompt', { date: selectedKey }))
       }
 
       /** @returns nothing; writes the open editor. */
@@ -995,7 +1010,12 @@ body[data-ds-dark-theme] .wc-page {
                   h('span', { className: 'wc-sectiontitle' },
                     daySchedules.length === 0 ? t('schedules') : `${t('schedules')} · ${daySchedules.length}`),
                   form === null
-                    ? h('button', { type: 'button', className: 'wc-action', onClick: openCreateForm }, t('newSchedule'))
+                    ? h('span', { className: 'wc-sectionactions' },
+                      startSession === undefined
+                        ? null
+                        : h('button', { type: 'button', className: 'wc-action', onClick: openChatCreate }, t('chatCreate')),
+                      h('button', { type: 'button', className: 'wc-action', onClick: openCreateForm }, t('newSchedule')),
+                    )
                     : null,
                 ),
                 notice === null ? null : h('p', { className: 'wc-sectionerror' }, notice),
@@ -1582,6 +1602,9 @@ body[data-ds-dark-theme] .wc-page {
             pickDirectory: ctx.uiWorkspace.pickDirectory === undefined
               ? undefined
               : () => ctx.uiWorkspace.pickDirectory(),
+            startSession: ctx.uiWorkspace.startSession === undefined
+              ? undefined
+              : prompt => ctx.uiWorkspace.startSession(undefined, { prompt, whenDraftExists: 'append' }),
           }),
         }, WorkCalendarPage))
       },

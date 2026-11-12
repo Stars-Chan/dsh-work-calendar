@@ -1,6 +1,6 @@
 {
   "name": "dsh-work-calendar",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "按月查看每天做了什么：会话、token 消耗和定时日程。",
   "type": "module",
   "license": "MIT",
